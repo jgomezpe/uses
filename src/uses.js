@@ -68,16 +68,13 @@ class Uses{
 
 	/**
 	 * Loads the given script (if possible)
-	 * @param type Type of the script to be loaded
-	 * @param url Script's url
-	 * @param callback Function that will be called if the script is loaded
+	 * @param code Script code
 	 */
 	 script(code){
 		var element = document.createElement( 'script' )
 		element.type = 'text/javascript'
-		element.innerHTML = code
-		var b = document.getElementsByTagName('script')[0]
-		b.parentNode.insertBefore(element, b)
+		element.appendChild(document.createTextNode(code))
+		document.body.appendChild(element)
 	}
 
     /**
