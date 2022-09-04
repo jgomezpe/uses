@@ -15,7 +15,7 @@ class Uses{
         uses = this
         this.root = root
 		this.dependency = dependency
-		this.path = path
+		this.url = url
 	}
 
     /**
@@ -157,7 +157,7 @@ class Uses{
 					callback(id)
 				}
 			}
-            var url = ((id.indexOf('/') < 0)?x.path:'')+id
+            var url = ((id.indexOf('/') < 0)?x.url:'')+id
             if(!url.endsWith('.js')) url += '.js'
 			fetch(url).then((response) => response.text()).then((code) => init(code)).catch(error => console.error('Error:', error))
 		}else{
