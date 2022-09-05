@@ -97,7 +97,7 @@ class Uses{
 	script(id, code){
 		var element = document.createElement( 'script' )
 		element.type = 'text/javascript'
-		element.id = id
+		element.id = id + '.js'
 		element.appendChild(document.createTextNode(code))
 		document.body.appendChild(element)
 	}
