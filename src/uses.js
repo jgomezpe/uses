@@ -91,11 +91,13 @@ class Uses{
 
 	/**
 	 * Loads the given script (if possible)
+	 * @param id Script id
 	 * @param code Script code
 	 */
-	script(code){
+	script(id, code){
 		var element = document.createElement( 'script' )
 		element.type = 'text/javascript'
+		element.id = id
 		element.appendChild(document.createTextNode(code))
 		document.body.appendChild(element)
 	}
@@ -147,11 +149,11 @@ class Uses{
 				if(n > 0){
 					code = code.substring(j, code.length)
 					x.set(id, deps, function(plug){
-						x.script(code)
+						x.script(id, code)
 						callback(id)
 					})
 				}else{
-					x.script(code)
+					x.script(id, code)
                     x.dependency[id] = 'loaded'
 					callback(id)
 				}
