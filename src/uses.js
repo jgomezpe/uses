@@ -54,27 +54,20 @@ class Uses{
 		return i
 	}
 
-    /**
-     * Gets the first runnable line of code
+	 /**
+     * Gets the argument list of the uses call in the javascript code (must be the first)
      * @param {*} code Javascript code to analyze
      * @param {*} i Initial position of non-comment code
-     * @returns First runnable line of code
+     * @returns Argument list (javascript source resources) of the uses call
      */
-	firstline(code, i){
-		var j=i+1
-		while(j<code.length && code.charAt(j)!='\n' && code.charAt(j)!='\r') j++
-		return code.substring(i,j)
-	}
-
-	/**
-	 * Loads the given script (if possible)
-	 * @param code Script code
-	 */
-	 script(code){
-		var element = document.createElement( 'script' )
-		element.type = 'text/javascript'
-		element.appendChild(document.createTextNode(code))
-		document.body.appendChild(element)
+	list(code, i){
+		var start = code.substring(0,Math.min(5,code.length))
+		if(start=='uses('){
+			var j=i+5
+			while(j<code.length && code.charAt(j)!=')') j++
+			if(j<code.length) return j+1
+		}
+		return i
 	}
 
     /**
@@ -83,14 +76,28 @@ class Uses{
      */
 	get(){ return arguments }
 
-    /**
-     * Determines if the javascript code requires other javascript files (analyzes the first line)
-     * @param {*} line First line of the javascript file
-     * @returns an array of the required javascript files (dependencies)
-     */
-	requires(line){ 
-		if(line.startsWith('uses(')) return eval('uses.get' + line.substring(4,line.length))
-		else return []			
+	/**
+	 * Gets the list of required javascript resources
+	 * @param {*} code Calling javascript code
+	 * @param {*} i Start position of uses list argument
+	 * @param {*} j End position of the uses list argument
+	 * @returns List of required javascript resources
+	 */
+	requires(code, i, j){
+		if(i+5>=j) return []
+		var args = code.substring(i+4,j)
+		return eval('uses.get' + args)
+	}
+
+	/**
+	 * Loads the given script (if possible)
+	 * @param code Script code
+	 */
+	script(code){
+		var element = document.createElement( 'script' )
+		element.type = 'text/javascript'
+		element.appendChild(document.createTextNode(code))
+		document.body.appendChild(element)
 	}
 
     /**
@@ -122,32 +129,27 @@ class Uses{
 
 	/**
 	 * Loads a javascript
-	 * @param id Javascript to load (if necessary)
 	 * @param caller Javascript requesting the javascript
+	 * @param id Javascript to load (if necessary)
 	 * @param callback Function that will be called when the javascript is loaded and run
 	 */
-	load(id, caller, callback){
+	load(caller, id, callback){
 		if(id===null) return
 		var x = this
-		x.add_dependency(caller,id)
 		if( caller==x.root || x.dependency[id] === undefined ){
 			x.dependency[id] = x.dependency[id] || []
 
 			function init(code){
 				var i=x.start(code)
-				var line = x.firstline(code,i)
-				var plugins = x.requires(line)
-				var n = plugins.length
+				var j = x.list(code,i)
+				var deps = x.requires(code,i,j)
+				var n = deps.length
 				if(n > 0){
-					code = code.substring(i+line.length, code.length)
-					for(var k=0; k<n;k++){
-						x.load(plugins[k], id, function(plug){
-							if(x.del_dependency(id,plug)){
-								x.script(code)
-								callback(id)
-							}
-						})
-					}
+					code = code.substring(j, code.length)
+					x.set(id, deps, function(plug){
+						x.script(code)
+						callback(id)
+					})
 				}else{
 					x.script(code)
                     x.dependency[id] = 'loaded'
@@ -172,10 +174,11 @@ class Uses{
      * @param {*} ids Set of Javascript to load (if necessary)
      * @param {*} callback Function to call after loading all dependencies of the caller
      */
-    uses(caller, ids, callback){
+    set(caller, ids, callback){
         var x = this
-		for( var i=0; i<ids.length; i++ ) x.load(ids[i], caller, function(plug){
-			if(x.del_dependency(caller,plug)) callback(caller)
+		for( var i=0; i<ids.length; i++ ) x.add_dependency(caller,ids[i])
+		for( var i=0; i<ids.length; i++ ) x.load(caller, ids[i], function(id){
+			if(x.del_dependency(caller,id)) callback(caller)
 		})
     }
 }
