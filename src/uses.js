@@ -131,14 +131,13 @@ class Uses{
 
 	/**
 	 * Loads a javascript
-	 * @param caller Javascript requesting the javascript
 	 * @param id Javascript to load (if necessary)
 	 * @param callback Function that will be called when the javascript is loaded and run
 	 */
-	load(caller, id, callback){
+	load(id, callback){
 		if(id===null) return
 		var x = this
-		if( caller==x.root || x.dependency[id] === undefined ){
+		if( x.dependency[id] === undefined ){
 			x.dependency[id] = x.dependency[id] || []
 
 			function init(code){
@@ -148,7 +147,7 @@ class Uses{
 				var n = deps.length
 				if(n > 0){
 					code = code.substring(j, code.length)
-					x.set(id, deps, function(plug){
+					x.set(id, deps, function(){
 						x.script(id, code)
 						callback(id)
 					})
@@ -158,8 +157,8 @@ class Uses{
 					callback(id)
 				}
 			}
-            var url = ((id.indexOf('/') < 0)?x.url:'')+id
-            if(!url.endsWith('.js')) url += '.js'
+			var url = ((id.indexOf('/') < 0)?x.url:'')+id
+			if(!url.endsWith('.js')) url += '.js'
 			fetch(url).then((response) => response.text()).then((code) => init(code)).catch(error => console.error('Error:', error))
 		}else{
 			function check(){
@@ -179,7 +178,7 @@ class Uses{
     set(caller, ids, callback){
         var x = this
 		for( var i=0; i<ids.length; i++ ) x.add_dependency(caller,ids[i])
-		for( var i=0; i<ids.length; i++ ) x.load(caller, ids[i], function(id){
+		for( var i=0; i<ids.length; i++ ) x.load(ids[i], function(id){
 			if(x.del_dependency(caller,id)) callback(caller)
 		})
     }
