@@ -8,14 +8,11 @@ class Uses{
      * 
      * @param {*} root id for the root script 
      * @param {*} dependency Initially loaded dependencies if available
-     * @param {*} url Location of javascript files without path (by default the same as the web page). If a javascript uses
-     * some relative path it will use the webpage path anyway (not in the path defined by this argument)
      */
-	constructor(root, dependency={}, url='./'){
+	constructor(root, dependency={}){
         uses = this
         this.root = root
 		this.dependency = dependency
-		this.url = url
 	}
 
     /**
@@ -54,7 +51,7 @@ class Uses{
 		return i
 	}
 
-	 /**
+	/**
      * Gets the argument list of the uses call in the javascript code (must be the first)
      * @param {*} code Javascript code to analyze
      * @param {*} i Initial position of non-comment code
@@ -97,7 +94,7 @@ class Uses{
 	script(id, code){
 		var element = document.createElement( 'script' )
 		element.type = 'text/javascript'
-		element.id = id + '.js'
+		element.id = id 
 		element.appendChild(document.createTextNode(code))
 		document.body.appendChild(element)
 	}
@@ -157,9 +154,7 @@ class Uses{
 					callback(id)
 				}
 			}
-			var url = ((id.indexOf('/') < 0)?x.url:'')+id
-			if(!url.endsWith('.js')) url += '.js'
-			fetch(url).then((response) => response.text()).then((code) => init(code)).catch(error => console.error('Error:', error))
+			fetch(id).then((response) => response.text()).then((code) => init(code)).catch(error => console.error('Error:', error))
 		}else{
 			function check(){
 				if(typeof x.dependency[id]!=='string') setTimeout(check, 100)
