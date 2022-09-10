@@ -90,13 +90,16 @@ class Uses{
 	 * Loads the given script (if possible)
 	 * @param id Script id
 	 * @param code Script code
+	 * @param callback Function that will be called when the javascript is loaded and run
 	 */
-	script(id, code){
+	script(id, code, callback){
 		var element = document.createElement( 'script' )
 		element.type = 'text/javascript'
 		element.id = id 
 		element.appendChild(document.createTextNode(code))
 		document.body.appendChild(element)
+		this.dependency[id] = 'loaded'
+		callback(id)
 	}
 
     /**
@@ -144,15 +147,8 @@ class Uses{
 				var n = deps.length
 				if(n > 0){
 					code = code.substring(j, code.length)
-					x.set(id, deps, function(){
-						x.script(id, code)
-						callback(id)
-					})
-				}else{
-					x.script(id, code)
-                    x.dependency[id] = 'loaded'
-					callback(id)
-				}
+					x.set(id, deps, function(){ x.script(id, code, callback) })
+				}else x.script(id, code)
 			}
 			fetch(id).then((response) => response.text()).then((code) => init(code)).catch(error => console.error('Error:', error))
 		}else{
