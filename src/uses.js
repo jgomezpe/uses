@@ -148,12 +148,12 @@ class Uses{
 				if(n > 0){
 					code = code.substring(j, code.length)
 					x.set(id, deps, function(){ x.script(id, code, callback) })
-				}else x.script(id, code)
+				}else x.script(id, code, callback)
 			}
 			fetch(id).then((response) => response.text()).then((code) => init(code)).catch(error => console.error('Error:', error))
 		}else{
 			function check(){
-				if(typeof x.dependency[id]!=='string') setTimeout(check, 100)
+				if(x.dependency[id]!=='loaded') setTimeout(check, 100)
 				else callback(id)	
 			}
 			check()
