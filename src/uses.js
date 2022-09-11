@@ -109,7 +109,7 @@ class Uses{
      */
 	add_dependency(caller, id){
 		var x = this
-		x.dependency[caller] = x.dependency[caller] || []
+		if((caller==x.root && x.dependency[caller] === 'loaded') || x.dependency[caller] === undefined) x.dependency[caller] = []
 		var i=0
 		while(i<x.dependency[caller].length && x.dependency[caller][i] != id) i++
 		if(i==x.dependency[caller].length) x.dependency[caller].push(id)
