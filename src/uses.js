@@ -6,12 +6,10 @@ var uses = null // Main manager object, set to an object when Uses constructor i
 class Uses{
     /**
      * 
-     * @param {*} root id for the root script 
      * @param {*} dependency Initially loaded dependencies if available
      */
-	constructor(root, dependency={}){
+	constructor(dependency={}){
         uses = this
-        this.root = root
 		this.dependency = dependency
 	}
 
@@ -109,7 +107,7 @@ class Uses{
      */
 	add_dependency(caller, id){
 		var x = this
-		if((caller==x.root && x.dependency[caller] === 'loaded') || x.dependency[caller] === undefined) x.dependency[caller] = []
+		x.dependency[caller] = x.dependency[caller] || []
 		var i=0
 		while(i<x.dependency[caller].length && x.dependency[caller][i] != id) i++
 		if(i==x.dependency[caller].length) x.dependency[caller].push(id)
@@ -169,8 +167,6 @@ class Uses{
     set(caller, ids, callback){
         var x = this
 		for( var i=0; i<ids.length; i++ ) x.add_dependency(caller,ids[i])
-		for( var i=0; i<ids.length; i++ ) x.load(ids[i], function(id){
-			if(x.del_dependency(caller,id)) callback(caller)
-		})
+		for( var i=0; i<ids.length; i++ ) x.load(ids[i], function(id){ if(x.del_dependency(caller,id)) callback(caller) })
     }
 }
