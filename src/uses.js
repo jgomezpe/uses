@@ -139,10 +139,6 @@ class Uses{
 			x.dependency[id] = x.dependency[id] || []
 
 			function init(code){
-				if(code==null){
-					callback(id)
-					return
-				}
 				var i=x.start(code)
 				var j = x.list(code,i)
 				var deps = x.requires(code,i,j)
@@ -152,7 +148,7 @@ class Uses{
 					x.set(id, deps, function(){ x.script(id, code, callback) })
 				}else x.script(id, code, callback)
 			}
-			fetch(id).then((response) => response.ok?response.text():null).then((code) => init(code)).catch(error => console.error('Error:', error))
+			fetch(id).then((response) => response.ok?response.text():'').then((code) => init(code)).catch(error => console.error('Error:', error))
 		}else{
 			function check(){
 				if(x.dependency[id]!=='loaded') setTimeout(check, 100)
